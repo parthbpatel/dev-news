@@ -2,7 +2,7 @@ class LinksController < ApplicationController
   before_action :prevent_unauthorized_user_access, except: [:show, :index]
 
   def index
-    @link = Link.hottest
+    @links = Link.hottest
   end
 
   def show
@@ -86,7 +86,7 @@ class LinksController < ApplicationController
   end
 
   def newest
-    @newest = Link.newest
+    @links = Link.newest
   end  
 
   private

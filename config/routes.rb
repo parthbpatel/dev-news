@@ -14,5 +14,7 @@ Rails.application.routes.draw do
     delete :destroy, on: :collection
   end
 
+  get '/logout', to: 'sessions#destroy'
+
   resources :users, only: [:new, :create]
 end
