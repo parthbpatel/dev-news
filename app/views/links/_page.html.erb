@@ -1,0 +1,4 @@
+<div class="infinite-scroll-page">
+  <%= render links %>
+  <%= render 'shared/infinite_scroll_loader', pagy: pagy, item_name: 'links', show_finish: links.any? %>
+</div>

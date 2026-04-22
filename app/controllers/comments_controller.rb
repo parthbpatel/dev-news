@@ -1,50 +1,57 @@
 class CommentsController < ApplicationController
-  before_action :prevent_unauthorized_user_access, except: :index
-  before_action :set_variables, only: [:edit, :update, :destroy]
+  COMMENTS_PER_PAGE = 5
+
+  before_action :require_login, except: :index
+  before_action :set_link, only: %i[create edit update destroy]
+  before_action :set_comment, only: %i[edit update destroy]
+  before_action :authorize_comment!, only: %i[edit update destroy]
 
   def index
-    @comments = Comment.all
-  end
-
-  def edit
-    unless current_user.owns_comment?(@comment)
-      redirect_to root_path, notice: 'Not authorized to edit this comment'
-    end
+    @pagy, @comments = pagy_countless(Comment.includes(:user, :link).recent, items: COMMENTS_PER_PAGE)
+    render partial: 'comments/page', locals: { comments: @comments, pagy: @pagy } if request.xhr?
   end
 
   def create
-    @link = Link.find_by(id: params[:link_id])
-    @comment = @link.comments.new(user: current_user, body: comment_params[:body])
+    @comment = current_user.comments.new(link: @link)
+    @comment.assign_attributes(comment_params)
 
     if @comment.save
       redirect_to @link, notice: 'Comment created'
     else
-      redirect_to @link, notice: 'Comment was not saved. Ensure you have entered a comment'
+      @pagy, @comments = pagy_countless(@link.comments.for_display, items: COMMENTS_PER_PAGE)
+      render 'links/show', status: :unprocessable_entity
     end
   end
+
+  def edit; end
 
   def update
     if @comment.update(comment_params)
       redirect_to @link, notice: 'Comment updated'
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    if current_user.owns_comment?(@comment)
-      @comment.destroy
-      redirect_to @link, notice: 'Comment deleted'
-    else
-      redirect_to @link, notice: 'Not authorized to delete this comment'
-    end
+    @comment.destroy
+    redirect_to @link, notice: 'Comment deleted', status: :see_other
   end
 
   private
 
-  def set_variables
-    @link = Link.find_by(id: params[:link_id])
-    @comment = @link.comments.find_by(id: params[:id])
+  def set_link
+    @link = Link.find(params[:link_id])
+  end
+
+  def set_comment
+    @comment = @link.comments.find(params[:id])
+  end
+
+  def authorize_comment!
+    return if current_user.owns_comment?(@comment)
+
+    redirect_to @link, notice: 'Not authorized to manage this comment', status: :see_other
   end
 
   def comment_params

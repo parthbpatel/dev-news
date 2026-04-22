@@ -1,20 +1,18 @@
 Rails.application.routes.draw do
   root 'links#index'
 
-  resources :links, except: :index do
-    resources :comments, only: [:create, :edit, :update, :destroy]
-    get :upvote, on: :member
-    get :downvote, on: :member
+  resources :links do
+    resources :comments, only: %i[create edit update destroy]
+
+    member do
+      post :upvote
+      post :downvote
+    end
   end
 
   get '/comments', to: 'comments#index'
   get '/newest', to: 'links#newest'
 
-  resources :sessions, only: [:new, :create] do
-    delete :destroy, on: :collection
-  end
-
-  get '/logout', to: 'sessions#destroy'
-
+  resource :session, only: %i[new create destroy]
   resources :users, only: [:new, :create]
 end

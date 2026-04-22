@@ -1,0 +1,4 @@
+<div class="infinite-scroll-page">
+  <%= render partial: 'comments/comment', collection: comments, as: :comment %>
+  <%= render 'shared/infinite_scroll_loader', pagy: pagy, item_name: 'comments', show_finish: comments.any? %>
+</div>

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :prevent_logged_in_user_access
+  before_action :redirect_if_authenticated
 
   def new
     @user = User.new
@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       login(@user)
       redirect_to root_path, notice: 'Logged in'
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 

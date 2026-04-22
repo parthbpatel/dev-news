@@ -1,40 +1,53 @@
 class User < ApplicationRecord
   has_secure_password
 
-  validates :username, presence:true, length: { minimum: 3 }, uniqueness: { case_sensitive: false }
-
-  validates :password, length: { minimum: 6 }
+  before_validation :normalize_username
 
   has_many :links, dependent: :destroy
+  has_many :comments, dependent: :destroy
+  has_many :votes, dependent: :destroy
 
-  has_many :comments
-  has_many :votes
+  validates :username,
+            presence: true,
+            length: { minimum: 3 },
+            uniqueness: { case_sensitive: false }
+
+  validates :password, length: { minimum: 8 }, allow_nil: true
+
+  def self.find_by_normalized_username(username)
+    normalized_username = normalize_username_value(username)
+    return if normalized_username.blank?
+
+    find_by('LOWER(username) = ?', normalized_username)
+  end
 
   def owns_link?(link)
-    self == link.user
+    link.present? && self == link.user
   end
 
   def owns_comment?(comment)
-    self == comment.user
-  end
-
-  def upvote(link)
-    votes.create(upvote: 1, link: link)
+    comment.present? && self == comment.user
   end
 
   def upvoted?(link)
-    votes.exists?(upvote: 1, link: link)
-  end
-
-  def remove_vote(link)
-    votes.find_by(link: link).destroy
-  end
-
-  def downvote(link)
-    votes.create(downvote: 1, link: link)
+    vote_for(link)&.upvote?
   end
 
   def downvoted?(link)
-    votes.exists?(downvote: 1, link: link)
-  end    
+    vote_for(link)&.downvote?
+  end
+
+  private
+
+  def vote_for(link)
+    votes.find_by(link: link)
+  end
+
+  def normalize_username
+    self.username = self.class.normalize_username_value(username)
+  end
+
+  def self.normalize_username_value(username)
+    username.to_s.strip.downcase.presence
+  end
 end
