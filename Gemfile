@@ -33,6 +33,7 @@ gem 'pagy', '~> 4.11'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', '< 1.5', require: false
+gem 'logger', '~> 1.5'   # Explicitly add Ruby's logger gem
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
