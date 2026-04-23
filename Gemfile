@@ -27,13 +27,12 @@ gem 'jquery-rails', '~> 4.3', '>= 4.3.5'
 gem 'jquery', '~> 0.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 gem 'pagy', '~> 4.11'
-
+gem 'logger', '1.5.0'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', '< 1.5', require: false
-gem 'logger', '1.5.3'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
