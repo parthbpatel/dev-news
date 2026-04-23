@@ -28,17 +28,17 @@
       </span>
 
       <span class="delete-link">
-        <%= link_to "delete", link, method: :delete, data: { confirm: "Are you sure?" } %>
+        <%= button_to "delete", link_path(link), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-link p-0", form_class: "d-inline" %>
       </span>
     <% end %>
 
     <% if logged_in? %>
       <span class="upvote-link">
-        <%= link_to "upvote (#{link.upvotes})", upvote_link_path(link), method: :post %>
+        <%= button_to "upvote (#{link.upvotes})", upvote_link_path(link), method: :post, class: "btn btn-link p-0", form_class: "d-inline" %>
       </span>
 
       <span class="downvote-link">
-        <%= link_to "downvote (#{link.downvotes})", downvote_link_path(link), method: :post %>
+        <%= button_to "downvote (#{link.downvotes})", downvote_link_path(link), method: :post, class: "btn btn-link p-0", form_class: "d-inline" %>
       </span>
     <% end %>
   </div>

@@ -1,5 +1,9 @@
 class Link < ApplicationRecord
+  HOT_SCORE_GRAVITY = 1.8
+
   belongs_to :user
+  has_many :comments, dependent: :destroy
+  has_many :votes, dependent: :destroy
 
   validates :title,
               presence: true,
@@ -9,37 +13,53 @@ class Link < ApplicationRecord
             format: { with: %r{\Ahttps?://} },
             allow_blank: true
 
-  has_many :comments
-  has_many :votes
-
-  scope :hottest, -> { order(hot_score: :desc) }
+  scope :for_feed, -> { includes(:user, :comments, :votes) }
+  scope :for_show, -> { includes(:user, :votes) }
+  scope :hottest, -> { order(hot_score: :desc, created_at: :desc) }
   scope :newest, -> { order(created_at: :desc) }
 
   def comment_count
-    comments.length
+    comments.size
   end
 
   def upvotes
-    votes.sum(:upvote)
+    if association(:votes).loaded?
+      votes.count(&:upvote?)
+    else
+      votes.upvotes.count
+    end
   end
 
   def downvotes
-    votes.sum(:downvote)
+    if association(:votes).loaded?
+      votes.count(&:downvote?)
+    else
+      votes.downvotes.count
+    end
   end
 
-  def calc_hot_score
-    points = upvotes - downvotes
-    time_ago_in_hours = ((Time.now - created_at) / 3600).round
-    score = hot_score(points, time_ago_in_hours)
+  def vote_total
+    if association(:votes).loaded?
+      votes.sum(&:value)
+    else
+      votes.sum(:value)
+    end
+  end
 
-    update_attributes(points: points, hot_score: score)
+  def refresh_ranking!
+    score_points = vote_total
+    update!(points: score_points, hot_score: ranking_score(score_points))
   end
 
   private
 
-  def hot_score(points, time_ago_in_hours, gravity = 1.8)
-    # one is subtracted from available points because every link by default has one point
-    # There is no reason for picking 1.8 as gravity, just an arbitrary value
-    (points - 1) / (time_ago_in_hours + 2) ** gravity
+  def ranking_score(points, gravity = HOT_SCORE_GRAVITY)
+    return 0.0 if points.zero?
+
+    points.to_f / (age_in_hours + 2) ** gravity
+  end
+
+  def age_in_hours
+    ((Time.current - created_at) / 1.hour).round
   end
 end

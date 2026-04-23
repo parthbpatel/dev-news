@@ -1,0 +1,25 @@
+<div class="comment">
+  <p class="comment-owner">
+    <strong>
+      <%= comment.user.username %>
+    </strong>
+
+    <span class="comment-created small">
+      <%= time_ago_in_words(comment.created_at) %> ago
+    </span>
+
+    <% if logged_in? && current_user.owns_comment?(comment) %>
+      <span class="edit-comment">
+        <%= link_to 'edit', edit_link_comment_path(comment.link, comment) %>
+      </span>
+
+      <span class="delete-comment">
+        <%= button_to 'delete', link_comment_path(comment.link, comment), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-link p-0", form_class: "d-inline" %>
+      </span>
+    <% end %>
+  </p>
+
+  <p>
+    <%= comment.body %>
+  </p>
+</div>

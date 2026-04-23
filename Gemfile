@@ -26,6 +26,7 @@ gem 'bootstrap', '~> 4.6'
 gem 'jquery-rails', '~> 4.3', '>= 4.3.5'
 gem 'jquery', '~> 0.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
+gem 'pagy', '~> 4.11'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

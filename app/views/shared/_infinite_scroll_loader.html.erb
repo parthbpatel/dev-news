@@ -1,0 +1,15 @@
+<% next_url = pagy_next_url_for(pagy) %>
+
+<% if next_url.present? %>
+  <div class="infinite-scroll-loader" data-infinite-scroll-target="sentinel" data-next-url="<%= next_url %>" aria-live="polite">
+    <%= link_to "Load more #{item_name}", next_url, class: 'infinite-scroll-loader__link' %>
+    <div class="infinite-scroll-loader__status">
+      <span class="infinite-scroll-loader__pulse"></span>
+      <span>Loading more <%= item_name %>...</span>
+    </div>
+  </div>
+<% elsif show_finish %>
+  <div class="infinite-scroll-finish">
+    End of <%= item_name %>.
+  </div>
+<% end %>

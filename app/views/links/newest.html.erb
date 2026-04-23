@@ -1,3 +1,5 @@
-<section class="newest-links">
-  <%= render @links %>
+<section class="newest-links infinite-scroll-stream" data-infinite-scroll>
+  <div class="infinite-scroll-pages" data-infinite-scroll-target="pages">
+    <%= render 'links/page', links: @links, pagy: @pagy %>
+  </div>
 </section>
